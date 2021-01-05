@@ -147,7 +147,7 @@
     
     
     <article
-  id="post-hello-world"
+  id="post-ClickHouse学习指南"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -158,30 +158,96 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2021/01/05/hello-world/"
-    >Hello World</a> 
+  <a class="article-title" href="/2021/01/05/ClickHouse%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97/"
+    >ClickHouse学习指南</a> 
 </h2>
  
 
     </header>
      
     <div class="article-meta">
-      <a href="/2021/01/05/hello-world/" class="article-date">
-  <time datetime="2021-01-05T05:33:24.500Z" itemprop="datePublished">2021-01-05</time>
+      <a href="/2021/01/05/ClickHouse%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97/" class="article-date">
+  <time datetime="2021-01-05T08:28:06.000Z" itemprop="datePublished">2021-01-05</time>
 </a>    
     </div>
       
     <div class="article-entry" itemprop="articleBody">
        
-  <p>Welcome to <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a target="_blank" rel="noopener" href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a target="_blank" rel="noopener" href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
+  <h3 id="ClinkHouse简介"><a href="#ClinkHouse简介" class="headerlink" title="ClinkHouse简介"></a>ClinkHouse简介</h3><h4 id="ClickHouse来源"><a href="#ClickHouse来源" class="headerlink" title="ClickHouse来源"></a>ClickHouse来源</h4><p>Yandex在2016年6月15日开源了一个数据分析的数据库，名字叫做ClickHouse，这对保守俄罗斯人来说是个特大事。更让人惊讶的是，这个列式存储数据库的跑分要超过很多流行的商业MPP数据库软件，例如Vertica。如果你没有听过Vertica，那你一定听过 Michael Stonebraker，2014年图灵奖的获得者，PostgreSQL和Ingres发明者（Sybase和SQL Server都是继承 Ingres而来的）, Paradigm4和SciDB的创办者。Michael Stonebraker于2005年创办Vertica公司，后来该公司被HP收购，HP Vertica成为MPP列式存储商业数据库的高性能代表，Facebook就购买了Vertica数据用于用户行为分析。</p>
+<ol>
+<li>真正的面向列的DBMS</li>
+<li>数据高效压缩</li>
+<li>磁盘存储的数据</li>
+<li>多核并行处理</li>
+<li>在多个服务器上分布式处理</li>
+<li>SQL语法支持</li>
+<li>向量化引擎</li>
+<li>实时数据更新</li>
+<li>索引</li>
+<li>适合在线查询</li>
+<li>支持近似预估计算</li>
+<li>支持嵌套的数据结构</li>
+<li>支持数组作为数据类型</li>
+<li>支持限制查询复杂性以及配额</li>
+<li>复制数据复制和对数据完整性的支持</li>
+</ol>
+<h4 id="ClinkHouse-Tbale常用引擎-ENGINE"><a href="#ClinkHouse-Tbale常用引擎-ENGINE" class="headerlink" title="ClinkHouse Tbale常用引擎(ENGINE)"></a>ClinkHouse Tbale常用引擎(ENGINE)</h4><ol>
+<li><p>TinyLog</p>
+<blockquote>
+<ol>
+<li>是最简单的表轻量引擎（最多约100万行）, 一写多读的应用场景。同时读写会损害数据</li>
+<li>TinyLog 表经常作为中间表，用于数据的微批量处理. 语法中无需携带任何参数</li>
+<li>它将数据保存到磁盘. 每个字段都以单独压缩文件形式保存. 当写入数据时, 数据追加到文件的末尾</li>
+</ol>
+</blockquote>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span>  <span class="keyword">TABLE</span>  [ IF  <span class="keyword">NOT</span>  <span class="keyword">EXISTS</span> ]  [ db 。] table_name  [ <span class="keyword">ON</span>  CLUSTER  cluster ] </span><br><span class="line">		（</span><br><span class="line">    name1  [ type1 ]  [ <span class="keyword">DEFAULT</span> <span class="operator">|</span> MATERIALIZED <span class="operator">|</span> ALIAS  expr1 ]  [ TTL  expr1 ]，</span><br><span class="line">   	name2  [ type2 ]  [ <span class="keyword">DEFAULT</span> <span class="operator">|</span> MATERIALIZED <span class="operator">|</span> ALIAS  expr2 ]  [ TTL  expr2 ]，</span><br><span class="line">  	 	 	... </span><br><span class="line">  	INDEX index_name1  expr1的 TYPE  TYPE1 （...） 粒度 值<span class="number">1</span> ，</span><br><span class="line">    INDEX  index_name2  表达式<span class="number">2</span>  TYPE  TYPE2 （...） 粒度 值<span class="number">2</span> </span><br><span class="line">） ENGINE  <span class="operator">=</span>  TinyLog();</span><br></pre></td></tr></table></figure></li>
+<li><p>MergeTree</p>
+<blockquote>
+<ol>
+<li>这是目前 <strong>ClickHouse</strong>处理能力==最好==的引擎。</li>
+<li>引擎支持索引，通过主键和日期来构建索引, 同时提供数据的实时更新能力。</li>
+</ol>
+</blockquote>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span>  <span class="keyword">TABLE</span>  [ IF  <span class="keyword">NOT</span>  <span class="keyword">EXISTS</span> ]  [ db 。] table_name  [ <span class="keyword">ON</span>  CLUSTER  cluster ] </span><br><span class="line">		（</span><br><span class="line">    name1  [ type1 ]  [ <span class="keyword">DEFAULT</span> <span class="operator">|</span> MATERIALIZED <span class="operator">|</span> ALIAS  expr1 ]  [ TTL  expr1 ]，</span><br><span class="line">   	name2  [ type2 ]  [ <span class="keyword">DEFAULT</span> <span class="operator">|</span> MATERIALIZED <span class="operator">|</span> ALIAS  expr2 ]  [ TTL  expr2 ]，</span><br><span class="line">  		 	 ... </span><br><span class="line">  	INDEX index_name1  expr1的 TYPE  TYPE1 （...） 粒度 值<span class="number">1</span> ，</span><br><span class="line">    INDEX  index_name2  表达式<span class="number">2</span>  TYPE  TYPE2 （...） 粒度 值<span class="number">2</span> </span><br><span class="line">） ENGINE  <span class="operator">=</span>  MergeTree （）</span><br><span class="line">[ <span class="keyword">PARTITION</span>  <span class="keyword">BY</span>  EXPR ] </span><br><span class="line">[ <span class="keyword">ORDER</span>  <span class="keyword">BY</span>  EXPR ] </span><br><span class="line">[ <span class="keyword">PRIMARY</span>  KEY  EXPR ] </span><br><span class="line">[ 样品 <span class="keyword">BY</span>  EXPR ] </span><br><span class="line">[ SETTINGS  name <span class="operator">=</span> <span class="keyword">value</span>， ...]</span><br></pre></td></tr></table></figure></li>
+<li><p>ReplacingMergeTree</p>
+<blockquote>
+<ol>
+<li>适用于在后台清除重复数据以节省空间，但不保证不存在重复。</li>
+</ol>
+</blockquote>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span>  <span class="keyword">TABLE</span>  [ IF  <span class="keyword">NOT</span>  <span class="keyword">EXISTS</span> ]  [ db 。] table_name  [ <span class="keyword">ON</span>  CL	USTER  cluster ] (</span><br><span class="line">	name1  [ type1 ]  [ <span class="keyword">DEFAULT</span> <span class="operator">|</span> MATERIALIZED <span class="operator">|</span> ALIAS  expr1 ]  [ TTL  expr1 ]</span><br><span class="line">    name2  [ type2 ]  [ <span class="keyword">DEFAULT</span> <span class="operator">|</span> MATERIALIZED <span class="operator">|</span> ALIAS  expr2 ]  [ TTL  expr2 ]，</span><br><span class="line">    INDEX index_name1 expr1的 TYPE  TYPE1 （...） 粒度值<span class="number">1</span> ，</span><br><span class="line">    INDEX  index_name2 表达式<span class="number">2</span>  TYPE  TYPE2 （...） 粒度值<span class="number">2</span> </span><br><span class="line">) ENGINE  <span class="operator">=</span>ReplicatedMergeTree(<span class="string">&#x27;/clickhouse/tables/&#123;layer&#125;-&#123;shard&#125;/wt_order_details&#x27;</span>,<span class="string">&#x27;&#123;replica&#125;&#x27;</span>) </span><br><span class="line">		[ <span class="keyword">PARTITION</span> <span class="keyword">BY</span> EXPR ] </span><br><span class="line">		[ <span class="keyword">ORDER</span> <span class="keyword">BY</span> EXPR] </span><br><span class="line">		[ <span class="keyword">PRIMARY</span> <span class="keyword">KEY</span> EXPR ] </span><br><span class="line">		[ 样品 <span class="keyword">BY</span> EXPR] </span><br><span class="line">		[ SETTINGS name <span class="operator">=</span> <span class="keyword">value</span>， ...]</span><br></pre></td></tr></table></figure></li>
+<li><p>Memory</p>
+<blockquote>
+<ol>
+<li>重新启动服务器时，表中的数据消失，表将变为空。通常，使用此表引擎是不合理的。（值得注意的是，在许多情况下，与 MergeTree 引擎的性能几乎一样高）。</li>
+<li>锁范围小：读写操作不会相互阻塞。不支持索引。阅读是并行化的。</li>
+<li>换句话说，从这张表中读取是很轻松的。并发数据访问是同步的。</li>
+<li>以未压缩的形式将数据存储在内存中。数据完全以读取时获得的形式存储。</li>
+</ol>
+</blockquote>
+</li>
+<li><p>Distributed</p>
+<blockquote>
+<ol>
+<li>分布式引擎本身不存储数据, 但可以在多个服务器上进行分布式查询。 读是自动并行的。</li>
+<li>读取时，远程服务器表的索引（如果有的话）会被使用。</li>
+<li>远程服务器不仅用于读取数据，还会对尽可能数据做部分处理。</li>
+<li>分布式引擎参数：服务器配置文件中的集群名，远程数据库名，远程表名，数据分片键（可选）</li>
+<li>样例：ENGINE =Distributed(cluster, db, table[, sharding_key])</li>
+</ol>
+</blockquote>
+</li>
+<li><p>Kafka &lt;**导致数据丢失或者重复**&gt;</p>
+<ol>
+<li>自动跟踪传递的消息，因此组中的每条消息仅计算一次。如果要获取数据两次，则使用另一个组名创建表的副本。组是灵活的并在群集上同步。</li>
+<li>发布或订阅数据流。</li>
+<li>组织容错存储。</li>
+<li>处理流可用。</li>
+</ol>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> [IF <span class="keyword">NOT</span> <span class="keyword">EXISTS</span>] [db] table_name [<span class="keyword">ON</span> CLUSTER cluster](</span><br><span class="line">    name1 [type1] [<span class="keyword">DEFAULT</span> <span class="operator">|</span> MATERIALIZED <span class="operator">|</span> ALIAS expr1],</span><br><span class="line">    name2 [type2] [<span class="keyword">DEFAULT</span> <span class="operator">|</span> MATERIALIZED <span class="operator">|</span> ALIAS expr2],</span><br><span class="line">) ENGINE <span class="operator">=</span> Kafka()</span><br><span class="line">    	kafka_broker_list <span class="operator">=</span><span class="string">&#x27;host：port&#x27;</span>,</span><br><span class="line">  		kafka_topic_list <span class="operator">=</span><span class="string">&#x27;topic1，topic2，...&#x27;</span>,</span><br><span class="line">    	kafka_group_name <span class="operator">=</span><span class="string">&#x27;group_name&#x27;</span>,</span><br><span class="line">    	kafka_format <span class="operator">=</span><span class="string">&#x27;data_format&#x27;</span>[,]</span><br><span class="line">   		[kafka_row_delimiter <span class="operator">=</span><span class="string">&#x27;delimiter_symbol&#x27;</span>,]</span><br><span class="line">    	[kafka_schema <span class="operator">=</span><span class="string">&#x27;&#x27;</span>,]</span><br><span class="line">    	[kafka_num_consumers <span class="operator">=</span> N,]</span><br><span class="line">   		[kafka_skip_broken_messages <span class="operator">=</span> N]</span><br></pre></td></tr></table></figure>
+<h3 id="ClinkHouse开发说明"><a href="#ClinkHouse开发说明" class="headerlink" title="ClinkHouse开发说明"></a>ClinkHouse开发说明</h3></li>
+</ol>
+<h4 id="建表说明"><a href="#建表说明" class="headerlink" title="建表说明"></a>建表说明</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> dim.pay_user (</span><br><span class="line">    user_id <span class="type">Integer</span>,</span><br><span class="line">    status <span class="type">Integer</span>,</span><br><span class="line">    start_date <span class="type">Integer</span>,</span><br><span class="line">    end_date Nullable(<span class="type">Integer</span>),</span><br><span class="line">    etl_time DateTime</span><br><span class="line">)ENGINE <span class="operator">=</span> MergeTree() <span class="keyword">ORDER</span> <span class="keyword">BY</span> (user_id,status) SETTINGS index_granularity <span class="operator">=</span> <span class="number">8192</span></span><br><span class="line"><span class="comment">--Nullable() 代表该字段有空值</span></span><br><span class="line"><span class="comment">--Date等同于2020-12-12 | DateTime 等同于 2020-12-12 12:12:12</span></span><br><span class="line"><span class="comment">--默认ENGINE为MergeTree，</span></span><br><span class="line"><span class="comment">--ORDER BY为表排序索引字段，</span></span><br><span class="line"><span class="comment">--SETTINGS index_granularity = 8192为默认结构</span></span><br></pre></td></tr></table></figure>
  
       <!-- reward -->
       
@@ -192,6 +258,8 @@
     
     <footer class="article-footer">
        
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/BigData/" rel="tag">BigData</a></li></ul>
+
     </footer>
   </div>
 
